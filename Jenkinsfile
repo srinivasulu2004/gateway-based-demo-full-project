@@ -30,12 +30,12 @@ pipeline {
         success {
             mail to: "srinivasulubehara@gmail.com",
                  subject: "Regarding your ${APP_NAME} deployment status",
-                 body: "Your application ${APP_NAME} has deployed successfully (PASS). Artifact: ${ARTIFACT_ZIP}"
+                 body: "Your application ${APP_NAME} has deployed successfully (PASS). SEE: ${BUILD_URL}"
         }
         failure {
             mail to: "srinivasulubehara@gmail.com",
                  subject: "Regarding your ${APP_NAME} deployment status",
-                 body: "Your application ${APP_NAME} deployment failed (FAIL). Artifact: ${ARTIFACT_ZIP}"
+                 body: "Your application ${APP_NAME} deployment failed (FAIL). SEE: ${BUILD_URL}"
         }
     }
 }
