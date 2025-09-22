@@ -12,7 +12,7 @@ pipeline {
         }
         stage('build artifact') {
             steps {
-                 sh 'npm run build'
+                 sh 'npm run build ./frontend/package.json'
                 
                 // Create ZIP file from build folder
                 sh 'zip -r ${APP_NAME}.zip build/'
