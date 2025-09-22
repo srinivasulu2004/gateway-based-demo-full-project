@@ -12,11 +12,7 @@ pipeline {
         }
         stage('build artifact') {
             steps {
-                // Install dependencies
-                sh 'npm install'
-                
-                // Build production artifact
-                sh 'npm run build'
+                 sh 'npm run build'
                 
                 // Create ZIP file from build folder
                 sh 'zip -r ${APP_NAME}.zip build/'
