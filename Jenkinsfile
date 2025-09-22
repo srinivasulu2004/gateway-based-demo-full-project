@@ -34,6 +34,7 @@ pipeline {
         }
         stage('docker build and push') {
             steps {
+                script{
                 withDockerRegistry([credentialsId: 'dockerhub']) {
                     sh 'docker-compose build'
                     sh 'docker-compose push'
@@ -41,6 +42,7 @@ pipeline {
                 }
             }
         }
+    }
         stage('deploy application') {
             steps {
                 sh 'docker-compose up -d'
