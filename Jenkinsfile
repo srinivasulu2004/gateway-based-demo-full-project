@@ -2,6 +2,7 @@ pipeline {
     agent { label 'agent' }
     environment {
         APP_NAME = "my-demo-application"
+        ARTIFACT_ZIP = ""  // Will set dynamically after artifact is zipped
     }
     stages {
         stage('checkout-code') {
@@ -9,16 +10,34 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/srinivasulu2004/gateway-based-demo-full-project.git'
             }
         }
-        stage('build code') {
+        stage('build artifact') {
             steps {
-                echo 'code built successfully'
+                // Install dependencies
+                sh 'npm install'
+                
+                // Build production artifact
+                sh 'npm run build'
+                
+                // Create ZIP file from build folder
+                sh 'zip -r ${APP_NAME}.zip build/'
+                
+                // Set environment variable for ZIP
+                script {
+                    env.ARTIFACT_ZIP = "${APP_NAME}.zip"
+                }
+                
+                // Archive the artifact in Jenkins
+                archiveArtifacts artifacts: "${ARTIFACT_ZIP}", fingerprint: true
+                
+                echo "Artifact ${ARTIFACT_ZIP} built and archived successfully"
             }
         }
-        stage('docker build image and push') {
+        stage('docker build and push') {
             steps {
                 withDockerRegistry([credentialsId: 'dockerhub']) {
                     sh 'docker-compose build'
-                    echo 'all images have built successfully'
+                    sh 'docker-compose push'
+                    echo 'All images have built and pushed successfully'
                 }
             }
         }
@@ -32,12 +51,12 @@ pipeline {
         success {
             mail to: "srinivasulubehara@gmail.com",
                  subject: "Regarding your ${APP_NAME} deployment status",
-                 body: "your application ${APP_NAME} has deployed successfully (PASS)"
+                 body: "Your application ${APP_NAME} has deployed successfully (PASS). Artifact: ${ARTIFACT_ZIP}"
         }
         failure {
             mail to: "srinivasulubehara@gmail.com",
                  subject: "Regarding your ${APP_NAME} deployment status",
-                 body: "your application ${APP_NAME} deployment (FAIL)"
+                 body: "Your application ${APP_NAME} deployment failed (FAIL). Artifact: ${ARTIFACT_ZIP}"
         }
     }
 }
